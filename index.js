@@ -168,6 +168,35 @@ SteamTradeOffers.prototype.getOffers = function(options, callback) {
   });
 };
 
+
+SteamTradeOffers.prototype.getOffersNonApi = function(options, callback) {
+  doAPICall.bind(this)({
+    method: 'GetTradeOffers/v1',
+    params: options,
+    callback: function(error, res) {
+      if (error) {
+        return callback(error);
+      }
+
+      if (res.response.trade_offers_received !== undefined) {
+        res.response.trade_offers_received = res.response.trade_offers_received.map(function(offer) {
+          offer.steamid_other = toSteamId(offer.accountid_other);
+          return offer;
+        });
+      }
+
+      if (res.response.trade_offers_sent !== undefined) {
+        res.response.trade_offers_sent = res.response.trade_offers_sent.map(function(offer) {
+          offer.steamid_other = toSteamId(offer.accountid_other);
+          return offer;
+        });
+      }
+
+      callback(null, res);
+    }
+  });
+};
+
 SteamTradeOffers.prototype.getOffer = function(options, callback) {
   doAPICall.bind(this)({
     method: 'GetTradeOffer/v1',

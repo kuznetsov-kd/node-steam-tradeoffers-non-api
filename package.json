@@ -1,15 +1,15 @@
 {
-  "name": "steam-tradeoffers",
+  "name": "steam-tradeoffers-non-api",
   "version": "3.1.1",
   "description": "Allows you to automate Steam trading using trade offers in Node.js",
-  "author": "Alexey Komarov <alex7kom@gmail.com>",
+  "author": "Kirill Kuznetsov <kuznetsov.kd.dev@gmail.com>",
   "license": "MIT",
   "keywords": [
     "steam"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Alex7Kom/node-steam-tradeoffers.git"
+    "url": "https://github.com/DedWatson/node-steam-tradeoffers-non-api.git"
   },
   "dependencies": {
     "cheerio": "^0.20.0",
