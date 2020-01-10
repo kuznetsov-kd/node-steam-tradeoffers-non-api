@@ -14,7 +14,10 @@
   "dependencies": {
     "cheerio": "^0.20.0",
     "long": "^3.1.0",
-    "request": "^2.72.0"
+    "request": "^2.72.0",
+    "steam": "^1.4.1",
+    "steam-totp": "^2.1.1",
+    "steam-weblogon": "0.0.5"
   },
   "scripts": {}
 }
