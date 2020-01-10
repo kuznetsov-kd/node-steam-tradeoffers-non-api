@@ -176,7 +176,7 @@ SteamTradeOffers.prototype.getOffers = function (options, callback) {
  */
 SteamTradeOffers.prototype.getSendedOffersNonApi = function (options, callback) {
     this._requestCommunity.get({
-        uri: communityURL + `/profiles/${options.mySteamId}/tradeoffers/sent/`
+        uri: communityURL + `/profiles/${options.mySteamId}/tradeoffers/sent/?history=1`
     }, function (err, response, body) {
         if (err) {
             return callback(err);
