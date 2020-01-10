@@ -193,19 +193,21 @@ SteamTradeOffers.prototype.getSendedOffersNonApi = function (options, callback) 
 
             let offerState = offer('div.tradeoffer_items_banner');
 
-            switch (offerState[0].attribs.class) {
-                case "tradeoffer_items_banner accepted":
-                    tradeOffers.push({
-                        tradeofferid: tradeOfferId,
-                        trade_offer_state: 3,
-                    });
-                    break;
-                default:
-                    tradeOffers.push({
-                        tradeofferid: tradeOfferId,
-                        trade_offer_state: 7,
-                    });
-                    break;
+            if(offerState.length > 0){
+                switch (offerState[0].attribs.class) {
+                    case "tradeoffer_items_banner accepted":
+                        tradeOffers.push({
+                            tradeofferid: tradeOfferId,
+                            trade_offer_state: 3,
+                        });
+                        break;
+                    default:
+                        tradeOffers.push({
+                            tradeofferid: tradeOfferId,
+                            trade_offer_state: 7,
+                        });
+                        break;
+                }
             }
         }
 
