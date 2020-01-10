@@ -176,7 +176,7 @@ SteamTradeOffers.prototype.getOffers = function (options, callback) {
  */
 SteamTradeOffers.prototype.getSendedOffersNonApi = function (options, callback) {
     this._requestCommunity.get({
-        uri: communityURL + `/profiles/${options.mySteamId}/tradeoffers/sent/?history=1`
+        uri: communityURL + `/profiles/${options.mySteamId}/tradeoffers/sent/`
     }, function (err, response, body) {
         if (err) {
             return callback(err);
@@ -188,8 +188,8 @@ SteamTradeOffers.prototype.getSendedOffersNonApi = function (options, callback) 
         let tradeOffers = [];
 
         for (let i = 0; i < offers.length; i++) {
-            let tradeOfferId = offers[i].attribs.id.replace('tradeofferid_','');
-            let offer = cheerio.load(offers[i], { decodeEntities: false });
+            let tradeOfferId = offers[i].attribs.id.replace('tradeofferid_', '');
+            let offer = cheerio.load(offers[i], {decodeEntities: false});
 
             let offerState = offer('div.tradeoffer_items_banner');
 
@@ -206,6 +206,58 @@ SteamTradeOffers.prototype.getSendedOffersNonApi = function (options, callback) 
                         trade_offer_state: 7,
                     });
                     break;
+            }
+        }
+
+        callback(null, tradeOffers);
+    });
+};
+
+/**
+ *
+ * @param options {{ mySteamId: string }}
+ * @param callback
+ */
+SteamTradeOffers.prototype.getHoldOffersNonApi = function (options, callback) {
+    this._requestCommunity.get({
+        uri: communityURL + `/profiles/${options.mySteamId}/tradeoffers/sent/`
+    }, function (err, response, body) {
+        if (err) {
+            return callback(err);
+        }
+
+        var $ = cheerio.load(body);
+        var offers = $('div.tradeoffer');
+
+        let tradeOffers = [];
+
+        for (let i = 0; i < offers.length; i++) {
+            let tradeOfferId = offers[i].attribs.id.replace('tradeofferid_', '');
+            let offer = cheerio.load(offers[i], {decodeEntities: false});
+
+            let offerState = offer('div.tradeoffer_items_banner');
+
+            if(offerState.length > 0){
+                switch (offerState[0].attribs.class) {
+                    case "tradeoffer_items_banner accepted":
+                        tradeOffers.push({
+                            tradeofferid: tradeOfferId,
+                            trade_offer_state: 3,
+                        });
+                        break;
+                    case "tradeoffer_items_banner in_escrow":
+                        tradeOffers.push({
+                            tradeofferid: tradeOfferId,
+                            trade_offer_state: 11,
+                        });
+                        break;
+                    default:
+                        tradeOffers.push({
+                            tradeofferid: tradeOfferId,
+                            trade_offer_state: 7,
+                        });
+                        break;
+                }
             }
         }
 
