@@ -141,6 +141,31 @@ SteamTradeOffers.prototype.loadPartnerInventory = function (options, callback) {
     }, callback);
 };
 
+/**
+ * His method load non tradable items. Legit request delay 2 seconds.
+ * @param options
+ * @param callback
+ */
+SteamTradeOffers.prototype.loadPartnerFullInventory = function (options, callback) {
+    var query = {};
+
+    if (options.language) {
+        query.l = options.language;
+    }
+
+    if (options.tradableOnly !== false) {
+        query.trading = 1;
+    }
+
+    var uri = communityURL + '/'+options.partnerSteamId || toSteamId(options.partnerAccountId)+'/inventory/json/' + options.appId +
+        '/' + options.contextId + '/?' + querystring.stringify(query);
+
+    loadInventory.bind(this)({
+        uri: uri,
+        contextId: options.contextId
+    }, callback);
+};
+
 SteamTradeOffers.prototype.getOffers = function (options, callback) {
     doAPICall.bind(this)({
         method: 'GetTradeOffers/v1',
