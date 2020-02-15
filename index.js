@@ -310,6 +310,14 @@ SteamTradeOffers.prototype.getOffer = function (options, callback) {
     });
 };
 
+SteamTradeOffers.prototype.getTradeHoldDurations = function (options, callback) {
+    doAPICall.bind(this)({
+        method: 'GetTradeHoldDurations/v1',
+        params: options,
+        callback: callback
+    });
+};
+
 SteamTradeOffers.prototype.getSummary = function (options, callback) {
     doAPICall.bind(this)({
         method: 'GetTradeOffersSummary/v1',
@@ -478,7 +486,7 @@ SteamTradeOffers.prototype.getItems = function (options, callback) {
     if (options.language) {
         query = '?' + querystring.stringify({ l: options.language });
     }
-    
+
     this._requestCommunity.get({
         uri: communityURL + '/trade/' + options.tradeId + '/receipt/'  + query
     }, function (err, response, body) {
