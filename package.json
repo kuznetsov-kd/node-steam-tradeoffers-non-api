@@ -1,6 +1,6 @@
 {
   "name": "steam-tradeoffers-non-api",
-  "version": "3.1.8",
+  "version": "3.1.9",
   "description": "Allows you to automate Steam trading using trade offers in Node.js",
   "author": "Kirill Kuznetsov <kuznetsov.kd.dev@gmail.com>",
   "license": "MIT",
@@ -17,6 +17,7 @@
     "request": "^2.72.0",
     "steam": "^1.4.1",
     "steam-totp": "^2.1.1",
+    "steam-web-api-key": "0.0.4",
     "steam-weblogon": "0.0.5"
   },
   "scripts": {}
