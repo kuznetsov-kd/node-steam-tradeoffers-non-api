@@ -153,13 +153,14 @@ SteamTradeOffers.prototype.loadPartnerFullInventory = function (options, callbac
         query.l = options.language;
     }
 
-    if (options.tradableOnly !== false) {
+    if (options.tradableOnly) {
         query.trading = 1;
     }
 
-    var uri = communityURL + '/'+options.partnerSteamId || toSteamId(options.partnerAccountId)+'/inventory/json/' + options.appId +
-        '/' + options.contextId + '/?' + querystring.stringify(query);
+    let steamId = options.partnerSteamId || toSteamId(options.partnerAccountId)
 
+    var uri = communityURL + '/profiles/'+steamId+'/inventory/json/' + options.appId +
+        '/' + options.contextId + '/?' + querystring.stringify(query);
     loadInventory.bind(this)({
         uri: uri,
         contextId: options.contextId
