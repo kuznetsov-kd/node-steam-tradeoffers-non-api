@@ -319,6 +319,14 @@ SteamTradeOffers.prototype.getTradeHoldDurations = function (options, callback) 
     });
 };
 
+SteamTradeOffers.prototype.getPlayerSummaries = function (options, callback) {
+    doAPICall.bind(this)({
+        method: 'GetPlayerSummaries/v0002',
+        params: options,
+        callback: callback
+    });
+};
+
 SteamTradeOffers.prototype.getSummary = function (options, callback) {
     doAPICall.bind(this)({
         method: 'GetTradeOffersSummary/v1',
