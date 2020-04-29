@@ -320,7 +320,7 @@ SteamTradeOffers.prototype.getTradeHoldDurations = function (options, callback) 
 };
 
 SteamTradeOffers.prototype.getPlayerSummaries = function (options, callback) {
-    doAPICall.bind(this)({
+    doAPISteamUserCall.bind(this)({
         method: 'GetPlayerSummaries/v0002',
         params: options,
         callback: callback
@@ -656,6 +656,37 @@ function doAPICall(options) {
 
     var params = {
         uri: 'https://api.steampowered.com/IEconService/' + options.method +
+            '/?key=' + this.APIKey +
+            ((options.post) ? '' : '&' + querystring.stringify(options.params)),
+        json: true
+    };
+
+    if (options.post) {
+        params.form = options.params;
+    }
+
+    this._requestAPI[httpMethod](params, function (error, response, body) {
+        if (error || (response && response.statusCode !== 200)) {
+            return cb(error || new Error(response.statusCode));
+        }
+        if (!body || typeof body !== 'object') {
+            return cb(new Error('Invalid Response'));
+        }
+        cb(null, body);
+    }.bind(this));
+}
+
+function doAPISteamUserCall(options) {
+    var cb = function () {
+        if (typeof options.callback === 'function') {
+            options.callback.apply(null, arguments);
+        }
+    };
+
+    var httpMethod = options.post ? 'post' : 'get';
+
+    var params = {
+        uri: 'https://api.steampowered.com/ISteamUser/' + options.method +
             '/?key=' + this.APIKey +
             ((options.post) ? '' : '&' + querystring.stringify(options.params)),
         json: true
