@@ -533,11 +533,11 @@ SteamTradeOffers.prototype.loadPartnerFullInventory = function (options, callbac
 
     let steamId = options.partnerSteamId || toSteamId(options.partnerAccountId)
 
-    //var uri = communityURL + '/profiles/'+steamId+'/inventory/json/' + options.appId +
-    //    '/' + options.contextId + '/?' + querystring.stringify(query);
+    var uri = communityURL + '/profiles/'+steamId+'/inventory/json/' + options.appId +
+        '/' + options.contextId + '/?' + querystring.stringify(query);
 
-    var uri = communityURL + "/inventory/"+steamId+"/"+ options.appId +"/" + options.contextId + "?l=english&count=1000&" + querystring.stringify(query);
-    loadInventoryV2.bind(this)({
+    //var uri = communityURL + "/inventory/"+steamId+"/"+ options.appId +"/" + options.contextId + "?l=english&count=1000&" + querystring.stringify(query);
+    loadInventory.bind(this)({
         uri: uri,
         contextId: options.contextId
     }, callback);
