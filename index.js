@@ -141,32 +141,6 @@ SteamTradeOffers.prototype.loadPartnerInventory = function (options, callback) {
     }, callback);
 };
 
-/**
- * His method load non tradable items. Legit request delay 2 seconds.
- * @param options
- * @param callback
- */
-SteamTradeOffers.prototype.loadPartnerFullInventory = function (options, callback) {
-    var query = {};
-
-    if (options.language) {
-        query.l = options.language;
-    }
-
-    if (options.tradableOnly) {
-        query.trading = 1;
-    }
-
-    let steamId = options.partnerSteamId || toSteamId(options.partnerAccountId)
-
-    var uri = communityURL + '/profiles/'+steamId+'/inventory/json/' + options.appId +
-        '/' + options.contextId + '/?' + querystring.stringify(query);
-    loadInventory.bind(this)({
-        uri: uri,
-        contextId: options.contextId
-    }, callback);
-};
-
 SteamTradeOffers.prototype.getOffers = function (options, callback) {
     doAPICall.bind(this)({
         method: 'GetTradeOffers/v1',
@@ -541,6 +515,34 @@ SteamTradeOffers.prototype.getItems = function (options, callback) {
     });
 };
 
+/**
+ * His method load non tradable items. Legit request delay 2 seconds.
+ * @param options
+ * @param callback
+ */
+SteamTradeOffers.prototype.loadPartnerFullInventory = function (options, callback) {
+    var query = {};
+
+    if (options.language) {
+        query.l = options.language;
+    }
+
+    if (options.tradableOnly) {
+        query.trading = 1;
+    }
+
+    let steamId = options.partnerSteamId || toSteamId(options.partnerAccountId)
+
+    //var uri = communityURL + '/profiles/'+steamId+'/inventory/json/' + options.appId +
+    //    '/' + options.contextId + '/?' + querystring.stringify(query);
+
+    var uri = communityURL + "/inventory/"+steamId+"/"+ options.appId +"/" + options.contextId + "?l=english&count=1000&" + querystring.stringify(query);
+    loadInventoryV2.bind(this)({
+        uri: uri,
+        contextId: options.contextId
+    }, callback);
+};
+
 function setCookie(cookie) {
     this._j.setCookie(request.cookie(cookie), communityURL);
 }
@@ -600,6 +602,86 @@ function mergeObjects() {
         }
     }
     return result;
+}
+
+function loadInventoryV2(options, callback) {
+    options.inventory = options.inventory || [];
+    options.raw = options.raw || {};
+
+    var requestParams = {
+        uri: options.uri,
+        json: true
+    };
+
+    if (options.start) {
+        requestParams.uri += '&start=' + options.start;
+    }
+
+    if (options.headers) {
+        requestParams.headers = options.headers;
+    }
+
+    this._requestCommunity.get(requestParams, function (error, response, body) {
+        if (error) {
+            return callback(error);
+        }
+        if (body && body.error) {
+            return callback(new Error(body.error));
+        }
+        if (response && response.statusCode !== 200) {
+            return callback(new Error(response.statusCode));
+        }
+        if (!body || !body.assets || !body.descriptions) {
+            return callback(new Error('Invalid Response'));
+        }
+
+        options.raw = mergeRawInventoryV2(options.raw, body);
+        options.inventory = mergeInventoryV2(options.inventory, body, options.contextId);
+
+        callback(null, options.inventory, options.raw);
+    }.bind(this));
+}
+
+
+function mergeRawInventoryV2(raw, rawBody) {
+    var body = JSON.parse(JSON.stringify(rawBody));
+    var rgInventory = raw.rgInventory || {};
+    var rgCurrency = raw.rgCurrency || {};
+    var rgDescriptions = raw.rgDescriptions || {};
+
+    return {
+        rgInventory: mergeObjects(rgInventory, body.assets),
+        rgCurrency: mergeObjects(rgCurrency, []),
+        rgDescriptions: mergeObjects(rgDescriptions, body.descriptions)
+    };
+}
+
+function mergeInventoryV2(inventory, body, contextId) {
+    return inventory.concat(
+        mergeWithDescriptionsV2(body.assets, body.descriptions, contextId)
+            .concat(
+                mergeWithDescriptionsV2([], body.descriptions, contextId)
+            )
+    );
+}
+
+function mergeWithDescriptionsV2(items, descriptions, contextid) {
+    return items.map(function (item, index) {
+        var description = descriptions.find((desc) => desc.classid  === item.classid && desc.instanceid === item.instanceid);
+        if(description){
+            for (var key in description) {
+                if (description.hasOwnProperty(key)) {
+                    item[key] = description[key];
+                }
+            }
+        }
+        // add contextid because Steam is retarded
+        item.id = item.assetid;
+        item.contextid = contextid;
+        delete item.assetid;
+
+        return item;
+    });
 }
 
 function loadInventory(options, callback) {
