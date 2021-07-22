@@ -152,6 +152,10 @@ SteamTradeOffers.prototype.loadUserCountItems = function (options, callback) {
             return callback(new Error('Invalid Response'));
         }
 
+        if(body.indexOf("inventory is currently private") !== -1){
+            return callback(new Error('Private inventory'));
+        }
+
         let gameList = body.match(/<a id="inventory_link_[\s\S]+?<\/a>/g);
         if (!gameList) {
             return callback(new Error('Games not found'));
