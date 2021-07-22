@@ -141,6 +141,40 @@ SteamTradeOffers.prototype.loadPartnerInventory = function (options, callback) {
     }, callback);
 };
 
+SteamTradeOffers.prototype.loadUserCountItems = function (options, callback) {
+    this._requestCommunity.get({
+        uri: communityURL + '/profiles/' + options.steamId + '/inventory/'
+    }, function (err, response, body) {
+        if (err || (response && response.statusCode !== 200)) {
+            return callback(err || new Error(response.statusCode));
+        }
+        if (!body) {
+            return callback(new Error('Invalid Response'));
+        }
+
+        let gameList = body.match(/<a id="inventory_link_[\s\S]+?<\/a>/g);
+        if (!gameList) {
+            return callback(new Error('Games not found'));
+        }
+
+        let gamesCountItems = [];
+
+        for(let game of gameList){
+            let appId = /(?<=link.)[\d]+/.exec(game)[0];
+            let gameName = /(?<=games_list_tab_name\"\>)(.+)(?=\<\/)/.exec(game)[0];
+            let countItems = parseInt(/(?<=games_list_tab_number\">.)(.+)(?=.\<\/)/.exec(game)[0].replace(",", ""));
+
+            gamesCountItems.push({
+                appId: appId,
+                name: gameName,
+                countItems: countItems
+            });
+        }
+
+        callback(null, gamesCountItems);
+    });
+}
+
 SteamTradeOffers.prototype.getOffers = function (options, callback) {
     doAPICall.bind(this)({
         method: 'GetTradeOffers/v1',
@@ -193,7 +227,7 @@ SteamTradeOffers.prototype.getSendedOffersNonApi = function (options, callback) 
 
             let offerState = offer('div.tradeoffer_items_banner');
 
-            if(offerState.length > 0){
+            if (offerState.length > 0) {
                 switch (offerState[0].attribs.class) {
                     case "tradeoffer_items_banner accepted":
                         tradeOffers.push({
@@ -239,7 +273,7 @@ SteamTradeOffers.prototype.getHoldOffersNonApi = function (options, callback) {
 
             let offerState = offer('div.tradeoffer_items_banner');
 
-            if(offerState.length > 0){
+            if (offerState.length > 0) {
                 switch (offerState[0].attribs.class) {
                     case "tradeoffer_items_banner accepted":
                         tradeOffers.push({
@@ -475,11 +509,11 @@ SteamTradeOffers.prototype.getItems = function (options, callback) {
     var query = '';
 
     if (options.language) {
-        query = '?' + querystring.stringify({ l: options.language });
+        query = '?' + querystring.stringify({l: options.language});
     }
 
     this._requestCommunity.get({
-        uri: communityURL + '/trade/' + options.tradeId + '/receipt/'  + query
+        uri: communityURL + '/trade/' + options.tradeId + '/receipt/' + query
     }, function (err, response, body) {
         if (err || (response && response.statusCode !== 200)) {
             return callback(err || new Error(response.statusCode));
@@ -533,7 +567,7 @@ SteamTradeOffers.prototype.loadPartnerFullInventory = function (options, callbac
 
     let steamId = options.partnerSteamId || toSteamId(options.partnerAccountId)
 
-    var uri = communityURL + '/profiles/'+steamId+'/inventory/json/' + options.appId +
+    var uri = communityURL + '/profiles/' + steamId + '/inventory/json/' + options.appId +
         '/' + options.contextId + '/?' + querystring.stringify(query);
 
     //var uri = communityURL + "/inventory/"+steamId+"/"+ options.appId +"/" + options.contextId + "?l=english&count=1000&" + querystring.stringify(query);
@@ -667,8 +701,8 @@ function mergeInventoryV2(inventory, body, contextId) {
 
 function mergeWithDescriptionsV2(items, descriptions, contextid) {
     return items.map(function (item, index) {
-        var description = descriptions.find((desc) => desc.classid  === item.classid && desc.instanceid === item.instanceid);
-        if(description){
+        var description = descriptions.find((desc) => desc.classid === item.classid && desc.instanceid === item.instanceid);
+        if (description) {
             for (var key in description) {
                 if (description.hasOwnProperty(key)) {
                     item[key] = description[key];
