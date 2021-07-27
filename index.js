@@ -36,6 +36,8 @@ SteamTradeOffers.prototype.setup = function (options) {
     options.webCookie.forEach(function (name) {
         setCookie.bind(this)(name);
     }.bind(this));
+
+    setCookie.bind(this)("Steam_Language=english");
 };
 
 SteamTradeOffers.prototype.getOfferToken = function (callback) {
