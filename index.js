@@ -148,19 +148,19 @@ SteamTradeOffers.prototype.loadUserCountItems = function (options, callback) {
         uri: communityURL + '/profiles/' + options.steamId + '/inventory/'
     }, function (err, response, body) {
         if (err || (response && response.statusCode !== 200)) {
-            return callback(err || new Error(response.statusCode));
+            return callback(err || new Error(response.statusCode), response);
         }
         if (!body) {
-            return callback(new Error('Invalid Response'));
+            return callback(new Error('Invalid Response'), response);
         }
 
         if(body.indexOf("inventory is currently private") !== -1){
-            return callback(new Error('Private inventory'));
+            return callback(new Error('Private inventory'), response);
         }
 
         let gameList = body.match(/<a id="inventory_link_[\s\S]+?<\/a>/g);
         if (!gameList) {
-            return callback(new Error('Games not found'));
+            return callback(new Error('Games not found'), response);
         }
 
         let gamesCountItems = [];
