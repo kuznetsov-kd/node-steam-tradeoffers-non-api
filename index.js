@@ -144,6 +144,7 @@ SteamTradeOffers.prototype.loadPartnerInventory = function (options, callback) {
 };
 
 SteamTradeOffers.prototype.loadUserCountItems = function (options, callback) {
+    console.log("Load loadUserCountItems steamid: " + options.steamId);
     this._requestCommunity.get({
         uri: communityURL + '/profiles/' + options.steamId + '/inventory/'
     }, function (err, response, body) {
