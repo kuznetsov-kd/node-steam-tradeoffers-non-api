@@ -232,7 +232,7 @@ SteamTradeOffers.prototype.getSendedOffersNonApi = function (options, callback) 
             let tradeOfferId = offers[i].attribs.id.replace('tradeofferid_', '');
             let offer = cheerio.load(offers[i], {decodeEntities: false});
 
-            let offerState = offer('div.tradeoffer_items_ctn');
+            let offerState = offer('div.tradeoffer_items_banner');
 
             if (offerState.length > 0) {
                 switch (offerState[0].attribs.class) {
@@ -278,23 +278,17 @@ SteamTradeOffers.prototype.getHoldOffersNonApi = function (options, callback) {
             let tradeOfferId = offers[i].attribs.id.replace('tradeofferid_', '');
             let offer = cheerio.load(offers[i], {decodeEntities: false});
 
-            let offerState = offer('div.tradeoffer_items_ctn');
+            let offerState = offer('div.tradeoffer_items_banner');
 
             if (offerState.length > 0) {
                 switch (offerState[0].attribs.class) {
-                    case "tradeoffer_items_ctn  active":
-                        tradeOffers.push({
-                            tradeofferid: tradeOfferId,
-                            trade_offer_state: 2,
-                        });
-                        break;
-                    case "tradeoffer_items_ctn  accepted":
+                    case "tradeoffer_items_banner accepted":
                         tradeOffers.push({
                             tradeofferid: tradeOfferId,
                             trade_offer_state: 3,
                         });
                         break;
-                    case "tradeoffer_items_ctn  in_escrow":
+                    case "tradeoffer_items_banner in_escrow":
                         tradeOffers.push({
                             tradeofferid: tradeOfferId,
                             trade_offer_state: 11,
@@ -307,6 +301,11 @@ SteamTradeOffers.prototype.getHoldOffersNonApi = function (options, callback) {
                         });
                         break;
                 }
+            } else {
+                tradeOffers.push({
+                    tradeofferid: tradeOfferId,
+                    trade_offer_state: 2,
+                });
             }
         }
 
