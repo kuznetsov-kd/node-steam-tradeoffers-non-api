@@ -232,7 +232,7 @@ SteamTradeOffers.prototype.getSendedOffersNonApi = function (options, callback) 
             let tradeOfferId = offers[i].attribs.id.replace('tradeofferid_', '');
             let offer = cheerio.load(offers[i], {decodeEntities: false});
 
-            let offerState = offer('div.tradeoffer_items_banner');
+            let offerState = offer('div.tradeoffer_items_ctn');
 
             if (offerState.length > 0) {
                 switch (offerState[0].attribs.class) {
