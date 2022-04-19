@@ -166,16 +166,20 @@ SteamTradeOffers.prototype.loadUserCountItems = function (options, callback) {
 
         let gamesCountItems = [];
 
-        for(let game of gameList){
-            let appId = /(?<=link.)[\d]+/.exec(game)[0];
-            let gameName = /(?<=games_list_tab_name\"\>)(.+)(?=\<\/)/.exec(game)[0];
-            let countItems = parseInt(/(?<=games_list_tab_number\">.)(.+)(?=.\<\/)/.exec(game)[0].replace(",", ""));
+        try {
+            for(let game of gameList){
+                let appId = /(?<=link.)[\d]+/.exec(game)[0];
+                let gameName = /(?<=games_list_tab_name\"\>)(.+)(?=\<\/)/.exec(game)[0];
+                let countItems = parseInt(/(?<=games_list_tab_number\">.)(.+)(?=.\<\/)/.exec(game)[0].replace(",", ""));
 
-            gamesCountItems.push({
-                appId: appId,
-                name: gameName,
-                countItems: countItems
-            });
+                gamesCountItems.push({
+                    appId: appId,
+                    name: gameName,
+                    countItems: countItems
+                });
+            }
+        } catch (e) {
+
         }
 
         callback(null, gamesCountItems);
