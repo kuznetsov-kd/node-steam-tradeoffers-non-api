@@ -104,7 +104,7 @@ SteamTradeOffers.prototype.loadMyInventory = function (options, callback) {
         query.trading = 1;
     }
 
-    var uri = communityURL + '/my/inventory/json/' + options.appId +
+    var uri = communityURL + '/my/inventory/' + options.appId +
         '/' + options.contextId + '/?' + querystring.stringify(query);
 
     loadInventory.bind(this)({
@@ -583,8 +583,9 @@ SteamTradeOffers.prototype.loadPartnerFullInventory = function (options, callbac
 
     let steamId = options.partnerSteamId || toSteamId(options.partnerAccountId)
 
-    var uri = communityURL + '/profiles/' + steamId + '/inventory/json/' + options.appId +
-        '/' + options.contextId + '/?' + querystring.stringify(query);
+    var uri = communityURL + '/inventory/' + steamId + '/' + options.appId +
+        '/' + options.contextId + '/?l=english&count=1000';
+    //https://steamcommunity.com/inventory/76561198154920308/730/2?l=english&count=5000
 
     //var uri = communityURL + "/inventory/"+steamId+"/"+ options.appId +"/" + options.contextId + "?l=english&count=1000&" + querystring.stringify(query);
     loadInventory.bind(this)({
@@ -733,7 +734,8 @@ function mergeWithDescriptionsV2(items, descriptions, contextid) {
         return item;
     });
 }
-
+//https://steamcommunity.com/profiles/76561199275045751/inventory/json/730/2/?l=english
+//https://steamcommunity.com/inventory/76561198154920308/730/2?l=english&count=5000
 function loadInventory(options, callback) {
     options.inventory = options.inventory || [];
     options.raw = options.raw || {};
@@ -760,6 +762,36 @@ function loadInventory(options, callback) {
         }
         if (response && response.statusCode !== 200) {
             return callback(new Error(response.statusCode));
+        }
+        if(body && body.total_inventory_count !== undefined && body.total_inventory_count >= 0){
+            let backUp = body;
+
+            if(!backUp.descriptions){
+                backUp.descriptions = {};
+            }
+
+            if(!backUp.assets){
+                backUp.assets = [];
+            }
+
+            let rgDesc = {};
+
+            for(let i = 0; i < backUp.descriptions.length; i++){
+                let dsc = backUp.descriptions[i];
+                rgDesc[dsc.classid+"_"+dsc.instanceid] = dsc;
+            }
+
+            body = {
+                rgInventory: backUp.assets.map(asset => {
+                    asset.id = asset.assetid;
+                    return asset;
+                }),
+                rgDescriptions: rgDesc,
+                rgCurrency: [],
+                more: false,
+                more_start: false,
+                success: true
+            }
         }
         if (!body || !body.rgInventory || !body.rgDescriptions || !body.rgCurrency) {
             return callback(new Error('Invalid Response'));
