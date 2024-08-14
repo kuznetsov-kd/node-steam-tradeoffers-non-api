@@ -820,7 +820,7 @@ function doAPICall(options) {
 
     var params = {
         uri: 'https://api.steampowered.com/IEconService/' + options.method +
-            '/?key=' + this.APIKey +
+            '/?access_token=' + this.APIKey +
             ((options.post) ? '' : '&' + querystring.stringify(options.params)),
         json: true
     };
@@ -851,7 +851,7 @@ function doAPISteamUserCall(options) {
 
     var params = {
         uri: 'https://api.steampowered.com/ISteamUser/' + options.method +
-            '/?key=' + this.APIKey +
+            '/?access_token=' + this.APIKey +
             ((options.post) ? '' : '&' + querystring.stringify(options.params)),
         json: true
     };
